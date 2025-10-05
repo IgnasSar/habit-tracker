@@ -1,0 +1,68 @@
+networks:
+  ht-network:
+    driver: bridge
+
+services:
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: ht-php
+    networks:
+      - ht-network
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./backend/:/var/www/html
+      - ./backend/vendor:/var/www/html/vendor
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16
+    container_name: ht-db
+    restart: always
+    networks:
+      - ht-network
+    environment:
+      POSTGRES_DB: habit_tracker
+      POSTGRES_PASSWORD: root
+      POSTGRES_USER: root
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data:rw
+
+  node:
+    build:
+      context: .
+      dockerfile: ./docker/node/Dockerfile
+    container_name: ht-node
+    networks:
+      - ht-network
+    ports:
+      - "5173:5173"
+    stdin_open: true
+    tty: true
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    volumes:
+      - ./frontend:/app
+      - node-modules:/app/node_modules
+
+  nginx:
+    image: nginx:alpine
+    container_name: ht-nginx
+    networks:
+      - ht-network
+    ports:
+      - "80:80"
+    volumes:
+      - ./frontend:/var/www/html
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - php
+
+volumes:
+  db-data:
+  node-modules:
