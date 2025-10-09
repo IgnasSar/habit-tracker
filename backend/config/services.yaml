@@ -1,4 +1,5 @@
 parameters:
+    api_prefix: '/api'
 
 services:
     _defaults:
@@ -7,3 +8,8 @@ services:
 
     App\:
         resource: '../src/'
+
+    App\Controller\:
+        resource: '../src/Controller'
+        public: true
+        tags: ['controller.service_arguments']

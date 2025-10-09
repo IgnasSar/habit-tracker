@@ -3,3 +3,9 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
+
+api:
+    resource: '../src/Controller/'
+    type: attribute
+    prefix: /api
+    name_prefix: 'api_'

@@ -11,6 +11,7 @@ use DateTimeZone;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ORM\Table(name: '`user`')]
 class User
 {
     #[ORM\Id]
@@ -50,7 +51,8 @@ class User
 
     #[ORM\Column(
         name: 'last_login',
-        type: 'datetime_immutable'
+        type: 'datetime_immutable',
+        nullable: true
     )]
     private ?DateTimeImmutable $lastLogin = null;
 
