@@ -12,6 +12,8 @@ RUN apt-get update && apt-get install -y \
 
 RUN docker-php-ext-install pdo_pgsql pgsql
 
+RUN sed -i 's|listen = 9000|listen = 0.0.0.0:9000|' /usr/local/etc/php-fpm.d/zz-docker.conf
+
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 
 WORKDIR /var/www/html
