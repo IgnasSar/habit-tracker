@@ -1,0 +1,118 @@
+.register-page {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  font-family: "Inter", sans-serif;
+}
+
+.left-panel {
+  flex: 1;
+  background: linear-gradient(135deg, #5b5eff, #7a5cff);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 2rem;
+}
+
+.left-panel h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.left-panel p {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.login-btn {
+  background: transparent;
+  color: white;
+  border: 2px solid white;
+  padding: 0.75rem 2rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.login-btn:hover {
+  background: white;
+  color: #5b5eff;
+}
+
+.right-panel {
+  flex: 1;
+  background: #f8f9fc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.register-form {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 360px;
+}
+
+.register-form h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+.input-group {
+  margin-bottom: 1rem;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  outline: none;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+input:focus {
+  border-color: #6c63ff;
+}
+
+button[type="submit"] {
+  width: 100%;
+  background: #6c63ff;
+  color: white;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+button[type="submit"]:hover {
+  background: #5b5eff;
+}
+
+button[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error {
+  color: #d93025;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+.success {
+  color: green;
+  text-align: center;
+  margin-bottom: 1rem;
+}
