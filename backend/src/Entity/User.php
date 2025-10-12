@@ -5,6 +5,8 @@ declare(strict_types = 1);
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Uid\Uuid;
 use DateTimeImmutable;
 use DateTimeZone;
@@ -12,7 +14,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
-class User
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
@@ -131,5 +133,28 @@ class User
     public function getCreatedAt(): DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return $this->email;
+    }
+
+    public function getRoles(): array
+    {
+        $roles = ['ROLE_' . strtoupper($this->role)];
+
+        if (!in_array('ROLE_USER', $roles, true)) {
+            $roles[] = 'ROLE_USER';
+        }
+
+        return $roles;
+    }
+
+    public function eraseCredentials(): void {}
+
+    public function getPassword(): ?string
+    {
+        return $this->passwordHash;
     }
 }

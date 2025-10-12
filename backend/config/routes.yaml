@@ -9,3 +9,7 @@ api:
     type: attribute
     prefix: /api
     name_prefix: 'api_'
+
+api_login_check:
+    path: /api/login
+    methods: ['POST']
