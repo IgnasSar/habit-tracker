@@ -11,6 +11,7 @@ use Symfony\Component\Uid\Uuid;
 use DateTimeImmutable;
 use DateTimeZone;
 use Doctrine\ORM\Mapping as ORM;
+use App\Enum\Role;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -49,7 +50,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         length: 25,
         nullable: false
     )]
-    private string $role = 'user';
+    private string $role = Role::User->value;
 
     #[ORM\Column(
         name: 'last_login',
@@ -108,14 +109,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getRole(): string
+    public function getRole(): Role
     {
-        return $this->role;
+        return Role::from($this->role);
     }
 
-    public function setRole(string $role): self
+    public function setRole(Role $role): self
     {
-        $this->role = $role;
+        $this->role = $role->value;
         return $this;
     }
 
@@ -144,7 +145,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $roles = ['ROLE_' . strtoupper($this->role)];
 
-        if (!in_array('ROLE_USER', $roles, true)) {
+        if ($this->role !== Role::User->value) {
             $roles[] = 'ROLE_USER';
         }
 

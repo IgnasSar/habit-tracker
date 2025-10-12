@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Normalizer;
 
-use App\Entity\User;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class UserNormalizer
 {
-    public function normalize(User $user): array
+    public function normalize(UserInterface $user): array
     {
         return [
             'id' => $user->getId()->toRfc4122(),
