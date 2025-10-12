@@ -17,9 +17,6 @@ class UserUpdateRequest {
         )]
         public readonly ?string $username = null,
 
-        #[Assert\Email(message: 'Please enter a valid email address.')]
-        public readonly ?string $email = null,
-
         #[Assert\Length(
             min: 8,
             minMessage: 'Password must be at least {{ limit }} characters long.'

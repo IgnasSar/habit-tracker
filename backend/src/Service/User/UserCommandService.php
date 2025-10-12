@@ -86,19 +86,6 @@ class UserCommandService
             }
         }
 
-        if ($userUpdateRequest->email !== null) {
-            $existingUser = $this->userRepository
-                ->findOneByEmail($userUpdateRequest->email);
-
-            if ($existingUser !== null && $existingUser->getId() !== $user->getId()) {
-                $errors['email'] = 'Email is already taken by another user.';
-            } elseif ($userUpdateRequest->email === $user->getEmail()) {
-                $errors['email'] = 'Email is already set to this value.';
-            } else {
-                $user->setEmail($userUpdateRequest->email);
-            }
-        }
-
         if ($userUpdateRequest->password !== null) {
             if (password_verify($userUpdateRequest->password, $user->getPasswordHash())) {
                 $errors['password'] = 'Password is already set to this value.';

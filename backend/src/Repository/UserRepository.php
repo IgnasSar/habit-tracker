@@ -24,12 +24,13 @@ class UserRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
-    public function findOneByEmail(string $email): ?User
+    /**
+     * @return User[]
+     */
+    public function findAll(): array
     {
         return $this->createQueryBuilder('u')
-            ->andWhere('u.email = :email')
-            ->setParameter('email', $email)
             ->getQuery()
-            ->getOneOrNullResult();
+            ->getResult();
     }
 }

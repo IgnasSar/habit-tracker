@@ -31,10 +31,18 @@ class UserController {
         );
     }
 
-    #[Route(name: 'get_one_user', methods: ['GET'])]
+    #[Route('/me', name: 'get_one_user', methods: ['GET'])]
     public function get(): JsonResponse {
         return new JsonResponse(
             $this->userQueryService->get(),
+            Response::HTTP_OK
+        );
+    }
+
+    #[Route(name: 'get_all_user', methods: ['GET'])]
+    public function getAll(): JsonResponse {
+        return new JsonResponse(
+            $this->userQueryService->getAll(),
             Response::HTTP_OK
         );
     }
