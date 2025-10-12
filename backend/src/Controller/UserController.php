@@ -35,7 +35,7 @@ class UserController {
     public function get(): JsonResponse {
         return new JsonResponse(
             $this->userQueryService->get(),
-            Response::HTTP_CREATED
+            Response::HTTP_OK
         );
     }
 
@@ -45,7 +45,16 @@ class UserController {
     ): JsonResponse {
         return new JsonResponse(
             $this->userCommandService->update($userUpdateRequest),
-            Response::HTTP_CREATED
+            Response::HTTP_OK
+        );
+    }
+
+    #[Route(name: 'delete_user', methods: ['DELETE'])]
+    public function delete(): JsonResponse {
+        $this->userCommandService->delete();
+
+        return new JsonResponse(
+            status: Response::HTTP_NO_CONTENT
         );
     }
 }

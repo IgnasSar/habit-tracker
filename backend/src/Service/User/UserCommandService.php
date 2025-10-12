@@ -16,13 +16,16 @@ use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class UserCommandService {
+class UserCommandService
+{
     public function __construct(
-        private readonly Security $security,
+        private readonly Security               $security,
         private readonly EntityManagerInterface $entityManager,
-        private readonly UserNormalizer $userNormalizer,
-        private readonly UserRepository $userRepository,
-    ) {}
+        private readonly UserNormalizer         $userNormalizer,
+        private readonly UserRepository         $userRepository,
+    )
+    {
+    }
 
     public function create(UserCreateRequest $userCreateRequest): array
     {
@@ -119,5 +122,18 @@ class UserCommandService {
         $this->entityManager->flush();
 
         return $this->userNormalizer->normalize($user);
+    }
+
+
+    public function delete(): void
+    {
+        $user = $this->security->getUser();
+
+        if ($user === null) {
+            throw new NotFoundHttpException('User not found.');
+        }
+
+        $this->entityManager->remove($user);
+        $this->entityManager->flush();
     }
 }
