@@ -1,7 +1,7 @@
-import { useRegisterForm } from "../hooks/useRegisterForm";
+import { useLoginForm } from "../hooks/useLoginForm";
 import "../styles/Register.css";
 
-export default function RegisterForm() {
+export default function LoginForm() {
   const {
     formData,
     fieldErrors,
@@ -10,13 +10,13 @@ export default function RegisterForm() {
     loading,
     handleChange,
     handleSubmit,
-  } = useRegisterForm();
+  } = useLoginForm();
 
   return (
     <div className="register-form">
-      <h2>Create Account</h2>
+      <h2>Log In</h2>
 
-      {success && <p className="success">Registration successful!</p>}
+      {success && <p className="success">Login successful!</p>}
       {serverError && <p className="error">{serverError}</p>}
 
       <form onSubmit={handleSubmit} noValidate>
@@ -24,24 +24,13 @@ export default function RegisterForm() {
           <input
             name="username"
             type="text"
-            placeholder="Username"
+            placeholder="Email"
             value={formData.username}
             onChange={handleChange}
           />
           {fieldErrors.username && (
             <p className="error">{fieldErrors.username}</p>
           )}
-        </div>
-
-        <div className="input-group">
-          <input
-            name="email"
-            type="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={handleChange}
-          />
-          {fieldErrors.email && <p className="error">{fieldErrors.email}</p>}
         </div>
 
         <div className="input-group">
@@ -58,7 +47,7 @@ export default function RegisterForm() {
         </div>
 
         <button type="submit" disabled={loading}>
-          {loading ? "Signing Up..." : "Sign Up"}
+          {loading ? "Logging In..." : "Log In"}
         </button>
       </form>
     </div>

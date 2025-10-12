@@ -1,31 +1,34 @@
+const API_BASE = "http://localhost:80/api";
+
 export async function registerUser(data) {
-  const response = await fetch("http://localhost/api/users", {
+  const res = await fetch(`${API_BASE}/users`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
 
-  let resData = {};
-  try {
-    resData = await response.json();
-  } catch (parseError) {
-    console.warn("Response is not valid JSON:", parseError);
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(err);
   }
 
-  if (!response.ok) {
-    const errorData = resData || { message: "Registration failed." };
+  return await res.json();
+}
 
-    try {
+export async function loginUser(data) {
+  const res = await fetch(`${API_BASE}/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      username: data.username,
+      password: data.password,
+    }),
+  });
 
-      const parsed = errorData.errors || JSON.parse(errorData.message).errors;
-      
-      if (parsed)
-        throw new Error(JSON.stringify({ errors: parsed }));
-
-    } catch {
-      throw new Error(errorData.message || "Registration failed.");
-    }
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(err);
   }
 
-  return resData;
+  return await res.json();
 }
