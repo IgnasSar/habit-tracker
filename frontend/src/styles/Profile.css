@@ -1,0 +1,112 @@
+.profile-page {
+  font-family: "Inter", sans-serif;
+  background: #f8f9fc;
+  min-height: 100vh;
+  padding-top: 5rem;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.profile-card {
+  display: flex;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  width: 800px;
+  overflow: hidden;
+  margin-top: 2rem;
+}
+
+.profile-left {
+  background: linear-gradient(135deg, #5b5eff, #7a5cff);
+  color: white;
+  flex: 0.35;
+  text-align: center;
+  padding: 2rem;
+}
+
+.avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: white;
+  margin: 0 auto 1rem;
+}
+
+.profile-left h3 {
+  margin: 0.5rem 0;
+}
+
+.profile-right {
+  flex: 0.65;
+  padding: 2rem;
+}
+
+.profile-right h3 {
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.info-group {
+  margin-bottom: 1rem;
+}
+
+.info-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+
+.info-group p, 
+.info-group input {
+  background: #f0f1f7;
+  border-radius: 10px;
+  padding: 0.5rem 0.8rem;
+  border: none;
+  width: 100%;
+}
+
+.info-group input {
+  border: 1px solid #ccc;
+  background: white;
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+button {
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.edit-btn, .save-btn {
+  background: #6c63ff;
+  color: white;
+}
+
+.cancel-btn {
+  background: #ddd;
+}
+
+.password-btn {
+  background: #5b5eff;
+  color: white;
+}
+
+.privilege-btn {
+  background: #ffa500;
+  color: white;
+}
+
+.delete-btn {
+  background: #d93025;
+  color: white;
+}
