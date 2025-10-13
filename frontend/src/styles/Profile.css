@@ -12,7 +12,7 @@
   display: flex;
   background: white;
   border-radius: 20px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   width: 800px;
   overflow: hidden;
   margin-top: 2rem;
@@ -32,6 +32,13 @@
   border-radius: 50%;
   background: white;
   margin: 0 auto 1rem;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .profile-left h3 {
@@ -58,7 +65,7 @@
   margin-bottom: 0.3rem;
 }
 
-.info-group p, 
+.info-group p,
 .info-group input {
   background: #f0f1f7;
   border-radius: 10px;
@@ -87,7 +94,8 @@ button {
   font-weight: 500;
 }
 
-.edit-btn, .save-btn {
+.edit-btn,
+.save-btn {
   background: #6c63ff;
   color: white;
 }
@@ -111,11 +119,8 @@ button {
   color: white;
 }
 
-.avatar img {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
+.delete-btn:hover {
+  background: #c3261e;
 }
 
 .error-text {
@@ -123,4 +128,66 @@ button {
   font-size: 0.85rem;
   margin-top: 0.3rem;
   margin-left: 0.2rem;
+}
+
+.user-list {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: #f7f9fb;
+  border-radius: 15px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+}
+
+.user-list h4 {
+  margin-bottom: 0.8rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.user-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.user-table th,
+.user-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e2e2e2;
+}
+
+.user-table th {
+  background-color: #f1f3f6;
+  font-weight: 600;
+  color: #555;
+}
+
+.user-table tr:last-child td {
+  border-bottom: none;
+}
+
+.user-table tr:hover {
+  background-color: #f9fbfd;
+}
+
+.user-table select {
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #fff;
+}
+
+.no-users-box {
+  text-align: center;
+  padding: 1.2rem;
+  color: #666;
+  font-style: italic;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #e2e2e2;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
 }

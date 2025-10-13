@@ -14,11 +14,7 @@ export async function registerUser(data) {
     body: JSON.stringify(data),
   });
 
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(err);
-  }
-
+  if (!res.ok) throw new Error(await res.text());
   return await res.json();
 }
 
@@ -32,69 +28,49 @@ export async function loginUser(data) {
     }),
   });
 
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(err);
-  }
-
+  if (!res.ok) throw new Error(await res.text());
   return await res.json();
 }
 
-// Get current logged-in user
 export async function getCurrentUser() {
   const res = await fetch(`${API_BASE}/users/me`, {
     method: "GET",
     headers: getAuthHeaders(),
   });
 
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(err);
-  }
-
+  if (!res.ok) throw new Error(await res.text());
   return await res.json();
 }
 
-// Get all users (admin only)
 export async function getAllUsers() {
   const res = await fetch(`${API_BASE}/users`, {
     method: "GET",
     headers: getAuthHeaders(),
   });
 
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(err);
-  }
-
+  if (!res.ok) throw new Error(await res.text());
   return await res.json();
 }
 
-export async function updateUser(updateData) {
-  const res = await fetch(`${API_BASE}/users`, {
+
+export async function updateUser(username, updateData) {
+  const res = await fetch(`${API_BASE}/users/${encodeURIComponent(username)}`, {
     method: "PUT",
     headers: getAuthHeaders(),
     body: JSON.stringify(updateData),
   });
 
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(err);
-  }
-
+  if (!res.ok) throw new Error(await res.text());
   return await res.json();
 }
 
-export async function deleteUser() {
-  const res = await fetch(`${API_BASE}/users`, {
+
+export async function deleteUser(username) {
+  const res = await fetch(`${API_BASE}/users/${encodeURIComponent(username)}`, {
     method: "DELETE",
     headers: getAuthHeaders(),
   });
 
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(err);
-  }
-
+  if (!res.ok) throw new Error(await res.text());
   return await res.text();
 }

@@ -23,11 +23,11 @@ export default function ProfilePage() {
 
         if (currentUser.role === "admin") {
           const users = await getAllUsers();
-          setAllUsers(users.filter(u => u.id !== currentUser.id)); // exclude self
+          setAllUsers(users.filter((u) => u.id !== currentUser.id));
         }
       } catch (err) {
-        setError("Failed to load user information. Please log in again.");
         console.error(err);
+        setError("Failed to load user information. Please log in again.");
       } finally {
         setLoading(false);
       }
@@ -42,13 +42,16 @@ export default function ProfilePage() {
 
   const handleSave = async () => {
     try {
-      const updatePayload = { username: form.username };
+      const updatePayload = {};
+      if (form.username.trim() && form.username !== user.username)
+        updatePayload.username = form.username;
       if (form.password.trim() !== "") updatePayload.password = form.password;
 
-      const updatedUser = await updateUser(updatePayload);
+      const updatedUser = await updateUser(user.username, updatePayload);
       setUser(updatedUser);
       setEditing(false);
       setErrors({});
+      alert("Profile updated successfully!");
     } catch (err) {
       console.error("Update failed:", err);
       let parsedErrors = {};
@@ -62,23 +65,35 @@ export default function ProfilePage() {
     }
   };
 
-  const handleUserRoleChange = async (userId, newRole) => {
+  const handleUserRoleChange = async (targetUsername, newRole) => {
+    if (!user || user.role !== "admin") {
+      alert("Only admins can change user roles.");
+      return;
+    }
+
     try {
-      const updatedUser = await updateUser({ id: userId, role: newRole });
-      setAllUsers(allUsers.map(u => (u.id === userId ? updatedUser : u)));
-      alert(`Role changed to ${newRole}`);
+      const updatedUser = await updateUser(targetUsername, { role: newRole });
+      setAllUsers((prev) =>
+        prev.map((u) => (u.username === targetUsername ? updatedUser : u))
+      );
+      alert(`Role changed to ${newRole} for ${targetUsername}`);
     } catch (err) {
       console.error(err);
       alert("Failed to change role.");
     }
   };
 
-  const handleUserDelete = async (userId) => {
-    if (window.confirm("Are you sure you want to delete this user?")) {
+  const handleUserDelete = async (targetUsername) => {
+    if (!user || user.role !== "admin") {
+      alert("Only admins can delete users.");
+      return;
+    }
+
+    if (window.confirm(`Are you sure you want to delete ${targetUsername}?`)) {
       try {
-        await deleteUser(userId);
-        setAllUsers(allUsers.filter(u => u.id !== userId));
-        alert("User deleted");
+        await deleteUser(targetUsername);
+        setAllUsers((prev) => prev.filter((u) => u.username !== targetUsername));
+        alert("User deleted successfully.");
       } catch (err) {
         console.error(err);
         alert("Failed to delete user.");
@@ -86,8 +101,20 @@ export default function ProfilePage() {
     }
   };
 
-  if (loading) return <div className="profile-page"><p>Loading...</p></div>;
-  if (error) return <div className="profile-page"><p>{error}</p></div>;
+  if (loading)
+    return (
+      <div className="profile-page">
+        <p>Loading...</p>
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="profile-page">
+        <p>{error}</p>
+      </div>
+    );
+
   if (!user) return null;
 
   return (
@@ -104,6 +131,7 @@ export default function ProfilePage() {
 
         <div className="profile-right">
           <h3>Account Information</h3>
+
           <div className="info-group">
             <label>Username</label>
             {editing ? (
@@ -111,7 +139,9 @@ export default function ProfilePage() {
                 <input name="username" value={form.username} onChange={handleChange} />
                 {errors.username && <p className="error-text">{errors.username}</p>}
               </>
-            ) : <p>{user.username}</p>}
+            ) : (
+              <p>{user.username}</p>
+            )}
           </div>
 
           <div className="info-group">
@@ -134,54 +164,75 @@ export default function ProfilePage() {
             </div>
           )}
 
-          {errors.general && <p className="error-text" style={{ marginTop: "0.5rem" }}>{errors.general}</p>}
+          {errors.general && (
+            <p className="error-text" style={{ marginTop: "0.5rem" }}>
+              {errors.general}
+            </p>
+          )}
 
           <div className="buttons">
             {editing ? (
               <>
-                <button className="save-btn" onClick={handleSave}>Save</button>
-                <button className="cancel-btn" onClick={() => setEditing(false)}>Cancel</button>
+                <button className="save-btn" onClick={handleSave}>
+                  Save
+                </button>
+                <button className="cancel-btn" onClick={() => setEditing(false)}>
+                  Cancel
+                </button>
               </>
             ) : (
-              <button className="edit-btn" onClick={() => setEditing(true)}>Edit</button>
+              <button className="edit-btn" onClick={() => setEditing(true)}>
+                Edit
+              </button>
             )}
 
             {user.role === "admin" && (
-              <button className="privilege-btn" onClick={() => setShowUserList(!showUserList)}>
+              <button
+                className="privilege-btn"
+                onClick={() => setShowUserList(!showUserList)}
+              >
                 Manage Users
               </button>
             )}
           </div>
 
           {showUserList && (
-            <div className="user-list" style={{ marginTop: "1rem" }}>
+            <div className="user-list">
               <h4>Manage Users</h4>
+
               {allUsers.length === 0 ? (
-                <p>No other users found.</p>
+                <div className="no-users-box">
+                  <p>No other users found.</p>
+                </div>
               ) : (
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <table className="user-table">
                   <thead>
                     <tr>
-                      <th style={{ textAlign: "left" }}>Username</th>
+                      <th>Username</th>
                       <th>Role</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {allUsers.map(u => (
+                    {allUsers.map((u) => (
                       <tr key={u.id}>
                         <td>{u.username}</td>
                         <td>
                           <select
                             value={u.role}
-                            onChange={(e) => handleUserRoleChange(u.id, e.target.value)}
+                            onChange={(e) => handleUserRoleChange(u.username, e.target.value)}
                           >
                             <option value="user">User</option>
                             <option value="admin">Admin</option>
                           </select>
                         </td>
                         <td>
-                          <button className="delete-btn" onClick={() => handleUserDelete(u.id)}>Delete</button>
+                          <button
+                            className="delete-btn"
+                            onClick={() => handleUserDelete(u.username)}
+                          >
+                            Delete
+                          </button>
                         </td>
                       </tr>
                     ))}
