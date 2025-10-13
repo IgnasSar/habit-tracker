@@ -47,19 +47,20 @@ class UserController {
         );
     }
 
-    #[Route(name: 'update_user', methods: ['PUT'])]
+    #[Route('/{username}', name: 'update_user', methods: ['PUT'])]
     public function update(
+        string $username,
         #[MapRequestPayload] UserUpdateRequest $userUpdateRequest
     ): JsonResponse {
         return new JsonResponse(
-            $this->userCommandService->update($userUpdateRequest),
+            $this->userCommandService->update($username, $userUpdateRequest),
             Response::HTTP_OK
         );
     }
 
-    #[Route(name: 'delete_user', methods: ['DELETE'])]
-    public function delete(): JsonResponse {
-        $this->userCommandService->delete();
+    #[Route('/{username}', name: 'delete_user', methods: ['DELETE'])]
+    public function delete(string $username): JsonResponse {
+        $this->userCommandService->delete($username);
 
         return new JsonResponse(
             status: Response::HTTP_NO_CONTENT

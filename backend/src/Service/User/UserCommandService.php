@@ -12,14 +12,12 @@ use App\Repository\UserRepository;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
-use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class UserCommandService
 {
     public function __construct(
-        private readonly Security               $security,
         private readonly EntityManagerInterface $entityManager,
         private readonly UserNormalizer         $userNormalizer,
         private readonly UserRepository         $userRepository,
@@ -63,9 +61,12 @@ class UserCommandService
         return $this->userNormalizer->normalize($user);
     }
 
-    public function update(UserUpdateRequest $userUpdateRequest): array
+    public function update(
+        string $username,
+        UserUpdateRequest $userUpdateRequest
+    ): array
     {
-        $user = $this->security->getUser();
+        $user = $this->userRepository->findOneByUsername($username);
 
         if ($user === null) {
             throw new NotFoundHttpException('User not found.');
@@ -112,9 +113,9 @@ class UserCommandService
     }
 
 
-    public function delete(): void
+    public function delete(string $username): void
     {
-        $user = $this->security->getUser();
+        $user = $this->userRepository->findOneByUsername($username);
 
         if ($user === null) {
             throw new NotFoundHttpException('User not found.');
