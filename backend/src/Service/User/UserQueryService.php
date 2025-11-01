@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\User;
 
+use App\Dto\UserListRequest;
 use App\Normalizer\UserNormalizer;
 use App\Repository\UserRepository;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -27,14 +28,16 @@ class UserQueryService {
         return $this->userNormalizer->normalize($user);
     }
 
-    public function getAll(): array
+    public function getAll(int $page, int $limit): array
     {
-        $users = $this->userRepository->findAll();
+        $paginator = $this->userRepository->findAllPaginated($page, $limit);
 
-        return array_map(
-            fn($user) => $this->userNormalizer->normalize($user),
-            $users
-        );
+        $normalized = [];
+
+        foreach ($paginator as $user) {
+            $normalized[] = $this->userNormalizer->normalize($user);
+        }
+
+        return $normalized;
     }
-
 }

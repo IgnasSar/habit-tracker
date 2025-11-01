@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Dto\UserCreateRequest;
+use App\Dto\UserListRequest;
 use App\Dto\UserUpdateRequest;
 use App\Service\User\UserCommandService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\User\UserQueryService;
@@ -40,9 +42,12 @@ class UserController {
     }
 
     #[Route(name: 'get_all_user', methods: ['GET'])]
-    public function getAll(): JsonResponse {
+    public function getAll(
+        #[MapQueryParameter] int $page = 1,
+        #[MapQueryParameter] int $limit = 10
+    ): JsonResponse {
         return new JsonResponse(
-            $this->userQueryService->getAll(),
+            $this->userQueryService->getAll($page, $limit),
             Response::HTTP_OK
         );
     }

@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use App\Dto\UserListRequest;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
 class UserRepository extends ServiceEntityRepository
@@ -25,12 +27,16 @@ class UserRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return User[]
+     * @return Paginator
      */
-    public function findAll(): array
+    public function findAllPaginated(int $page, int $limit): Paginator
     {
-        return $this->createQueryBuilder('u')
-            ->getQuery()
-            ->getResult();
+        $query = $this->createQueryBuilder('u')
+            ->orderBy('u.username', 'ASC')
+            ->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit)
+            ->getQuery();
+
+        return new Paginator($query);
     }
 }
