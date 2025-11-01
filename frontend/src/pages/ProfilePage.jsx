@@ -14,16 +14,20 @@ export default function ProfilePage() {
   const [allUsers, setAllUsers] = useState([]);
   const [showUserList, setShowUserList] = useState(false);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [hasNextPage, setHasNextPage] = useState(false);
+
+
   useEffect(() => {
-    async function fetchData() {
+    async function fetchCurrentUser() {
       try {
         const currentUser = await getCurrentUser();
         setUser(currentUser);
         setForm({ username: currentUser.username, password: "" });
 
         if (currentUser.role === "admin") {
-          const users = await getAllUsers();
-          setAllUsers(users.filter((u) => u.id !== currentUser.id));
+          await fetchUsers(currentUser.id, 1, limit);
         }
       } catch (err) {
         console.error(err);
@@ -32,8 +36,26 @@ export default function ProfilePage() {
         setLoading(false);
       }
     }
-    fetchData();
+    fetchCurrentUser();
   }, []);
+
+  const fetchUsers = async (excludeId, page = 1, limit = 10) => {
+    try {
+      setLoading(true);
+      const users = await getAllUsers(page, limit + 1);
+      const filtered = users.filter((u) => u.id !== excludeId);
+      const hasMore = users.length > limit;
+      setAllUsers(filtered.slice(0, limit));
+      setCurrentPage(page);
+      setHasNextPage(hasMore);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to fetch users.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -101,6 +123,14 @@ export default function ProfilePage() {
     }
   };
 
+  const handleNextPage = () => fetchUsers(user.id, currentPage + 1, limit);
+  const handlePrevPage = () => currentPage > 1 && fetchUsers(user.id, currentPage - 1, limit);
+  const handleLimitChange = (e) => {
+    const newLimit = parseInt(e.target.value, 10);
+    setLimit(newLimit);
+    fetchUsers(user.id, 1, newLimit);
+  };
+
   if (loading)
     return (
       <div className="profile-page">
@@ -164,33 +194,19 @@ export default function ProfilePage() {
             </div>
           )}
 
-          {errors.general && (
-            <p className="error-text" style={{ marginTop: "0.5rem" }}>
-              {errors.general}
-            </p>
-          )}
+          {errors.general && <p className="error-text">{errors.general}</p>}
 
           <div className="buttons">
             {editing ? (
               <>
-                <button className="save-btn" onClick={handleSave}>
-                  Save
-                </button>
-                <button className="cancel-btn" onClick={() => setEditing(false)}>
-                  Cancel
-                </button>
+                <button className="save-btn" onClick={handleSave}>Save</button>
+                <button className="cancel-btn" onClick={() => setEditing(false)}>Cancel</button>
               </>
             ) : (
-              <button className="edit-btn" onClick={() => setEditing(true)}>
-                Edit
-              </button>
+              <button className="edit-btn" onClick={() => setEditing(true)}>Edit</button>
             )}
-
             {user.role === "admin" && (
-              <button
-                className="privilege-btn"
-                onClick={() => setShowUserList(!showUserList)}
-              >
+              <button className="privilege-btn" onClick={() => setShowUserList(!showUserList)}>
                 Manage Users
               </button>
             )}
@@ -199,6 +215,21 @@ export default function ProfilePage() {
           {showUserList && (
             <div className="user-list">
               <h4>Manage Users</h4>
+
+              <div className="pagination-controls">
+                <button onClick={handlePrevPage} disabled={currentPage === 1}>Previous</button>
+                <span>Page {currentPage}</span>
+                <button onClick={handleNextPage} disabled={!hasNextPage}>Next</button>
+
+                <label>
+                  Users per page:
+                  <select value={limit} onChange={handleLimitChange}>
+                    <option value={5}>5</option>
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                  </select>
+                </label>
+              </div>
 
               {allUsers.length === 0 ? (
                 <div className="no-users-box">

@@ -42,8 +42,8 @@ export async function getCurrentUser() {
   return await res.json();
 }
 
-export async function getAllUsers() {
-  const res = await fetch(`${API_BASE}/users`, {
+export async function getAllUsers(page = 1, limit = 10) {
+  const res = await fetch(`${API_BASE}/users?page=${page}&limit=${limit}`, {
     method: "GET",
     headers: getAuthHeaders(),
   });
@@ -51,7 +51,6 @@ export async function getAllUsers() {
   if (!res.ok) throw new Error(await res.text());
   return await res.json();
 }
-
 
 export async function updateUser(username, updateData) {
   const res = await fetch(`${API_BASE}/users/${encodeURIComponent(username)}`, {
@@ -63,7 +62,6 @@ export async function updateUser(username, updateData) {
   if (!res.ok) throw new Error(await res.text());
   return await res.json();
 }
-
 
 export async function deleteUser(username) {
   const res = await fetch(`${API_BASE}/users/${encodeURIComponent(username)}`, {
