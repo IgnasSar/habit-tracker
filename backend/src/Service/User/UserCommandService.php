@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Service\User;
 
-use App\Dto\UserUpdateRequest;
+use App\Dto\User\UserCreateRequest;
+use App\Dto\User\UserUpdateRequest;
 use App\Entity\User;
-use App\Dto\UserCreateRequest;
 use App\Normalizer\UserNormalizer;
 use App\Repository\UserRepository;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;

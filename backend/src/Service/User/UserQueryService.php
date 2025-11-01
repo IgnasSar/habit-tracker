@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Service\User;
 
-use App\Dto\UserListRequest;
 use App\Normalizer\UserNormalizer;
 use App\Repository\UserRepository;
 use Symfony\Bundle\SecurityBundle\Security;
