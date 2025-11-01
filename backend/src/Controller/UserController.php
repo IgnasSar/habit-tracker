@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Dto\UserCreateRequest;
-use App\Dto\UserListRequest;
-use App\Dto\UserUpdateRequest;
+use App\Dto\User\UserCreateRequest;
+use App\Dto\User\UserUpdateRequest;
 use App\Service\User\UserCommandService;
+use App\Service\User\UserQueryService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Service\User\UserQueryService;
 
 #[Route('/users')]
 class UserController {

@@ -8,6 +8,7 @@ use App\Repository\HabitRepository;
 use DateTimeImmutable;
 use DateTimeZone;
 use Doctrine\ORM\Mapping as ORM;
+use App\Enum\PeriodType;
 
 #[ORM\Entity(repositoryClass: HabitRepository::class)]
 class Habit
@@ -31,7 +32,7 @@ class Habit
         type: 'string',
         length: 25
     )]
-    private ?string $periodType = null;
+    private string $periodType = PeriodType::Daily->value;
 
     #[ORM\Column(
         name: 'period_length',
@@ -91,14 +92,14 @@ class Habit
         return $this;
     }
 
-    public function getPeriodType(): ?string
+    public function getPeriodType(): PeriodType
     {
-        return $this->periodType;
+        return PeriodType::from($this->periodType);
     }
 
-    public function setPeriodType(string $periodType): self
+    public function setPeriodType(PeriodType $periodType): self
     {
-        $this->periodType = $periodType;
+        $this->periodType = $periodType->value;
         return $this;
     }
 
