@@ -18,7 +18,6 @@ export default function ProfilePage() {
   const [limit, setLimit] = useState(10);
   const [hasNextPage, setHasNextPage] = useState(false);
 
-
   useEffect(() => {
     async function fetchCurrentUser() {
       try {
@@ -31,7 +30,7 @@ export default function ProfilePage() {
         }
       } catch (err) {
         console.error(err);
-        setError("Failed to load user information. Please log in again.");
+        setError("Failed to load your profile. Please try logging in again.");
       } finally {
         setLoading(false);
       }
@@ -50,38 +49,75 @@ export default function ProfilePage() {
       setHasNextPage(hasMore);
     } catch (err) {
       console.error(err);
-      alert("Failed to fetch users.");
+      alert("Failed to fetch user list.");
     } finally {
       setLoading(false);
     }
   };
-
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     setErrors({ ...errors, [e.target.name]: "" });
   };
 
+  const formatFriendlyError = (message) => {
+    if (!message) return "An unexpected error occurred.";
+
+    const lower = message.toLowerCase();
+
+    if (lower.includes("password is already set"))
+      return "Your new password can’t be the same as your current one.";
+    if (lower.includes("username already exists"))
+      return "That username is already taken. Please choose a different one.";
+    if (lower.includes("invalid password"))
+      return "Your password doesn’t meet the required criteria.";
+    if (lower.includes("not authorized"))
+      return "You don’t have permission to perform this action.";
+    if (lower.includes("network"))
+      return "There was a network issue. Please try again later.";
+    if (lower.includes("unexpected"))
+      return "Something went wrong. Please try again.";
+
+    return message;
+  };
+
   const handleSave = async () => {
     try {
       const updatePayload = {};
-      if (form.username.trim() && form.username !== user.username)
+
+      if (form.username.trim() && form.username !== user.username) {
         updatePayload.username = form.username;
-      if (form.password.trim() !== "") updatePayload.password = form.password;
+      }
+
+      if (form.password.trim()) {
+        updatePayload.password = form.password;
+      }
+
+      if (Object.keys(updatePayload).length === 0) {
+        alert("Nothing to update.");
+        return;
+      }
 
       const updatedUser = await updateUser(user.username, updatePayload);
       setUser(updatedUser);
       setEditing(false);
       setErrors({});
+      setForm({ ...form, password: "" });
       alert("Profile updated successfully!");
     } catch (err) {
       console.error("Update failed:", err);
       let parsedErrors = {};
       try {
         const parsed = JSON.parse(err.message);
-        if (parsed.errors) parsedErrors = parsed.errors;
+        if (parsed.errors) {
+          Object.keys(parsed.errors).forEach((key) => {
+            parsedErrors[key] = formatFriendlyError(parsed.errors[key]);
+          });
+        } else {
+          parsedErrors.general = formatFriendlyError(parsed.message);
+        }
       } catch {
-        parsedErrors.general = "Something went wrong.";
+        parsedErrors.general = formatFriendlyError(err.message);
       }
       setErrors(parsedErrors);
     }
@@ -101,7 +137,7 @@ export default function ProfilePage() {
       alert(`Role changed to ${newRole} for ${targetUsername}`);
     } catch (err) {
       console.error(err);
-      alert("Failed to change role.");
+      alert("Failed to change role. Please try again.");
     }
   };
 
@@ -124,7 +160,8 @@ export default function ProfilePage() {
   };
 
   const handleNextPage = () => fetchUsers(user.id, currentPage + 1, limit);
-  const handlePrevPage = () => currentPage > 1 && fetchUsers(user.id, currentPage - 1, limit);
+  const handlePrevPage = () =>
+    currentPage > 1 && fetchUsers(user.id, currentPage - 1, limit);
   const handleLimitChange = (e) => {
     const newLimit = parseInt(e.target.value, 10);
     setLimit(newLimit);
@@ -166,8 +203,14 @@ export default function ProfilePage() {
             <label>Username</label>
             {editing ? (
               <>
-                <input name="username" value={form.username} onChange={handleChange} />
-                {errors.username && <p className="error-text">{errors.username}</p>}
+                <input
+                  name="username"
+                  value={form.username}
+                  onChange={handleChange}
+                />
+                {errors.username && (
+                  <p className="error-text">{errors.username}</p>
+                )}
               </>
             ) : (
               <p>{user.username}</p>
@@ -190,7 +233,9 @@ export default function ProfilePage() {
                 onChange={handleChange}
                 placeholder="Leave blank to keep current password"
               />
-              {errors.password && <p className="error-text">{errors.password}</p>}
+              {errors.password && (
+                <p className="error-text">{errors.password}</p>
+              )}
             </div>
           )}
 
@@ -199,14 +244,23 @@ export default function ProfilePage() {
           <div className="buttons">
             {editing ? (
               <>
-                <button className="save-btn" onClick={handleSave}>Save</button>
-                <button className="cancel-btn" onClick={() => setEditing(false)}>Cancel</button>
+                <button className="save-btn" onClick={handleSave}>
+                  Save
+                </button>
+                <button className="cancel-btn" onClick={() => setEditing(false)}>
+                  Cancel
+                </button>
               </>
             ) : (
-              <button className="edit-btn" onClick={() => setEditing(true)}>Edit</button>
+              <button className="edit-btn" onClick={() => setEditing(true)}>
+                Edit
+              </button>
             )}
             {user.role === "admin" && (
-              <button className="privilege-btn" onClick={() => setShowUserList(!showUserList)}>
+              <button
+                className="privilege-btn"
+                onClick={() => setShowUserList(!showUserList)}
+              >
                 Manage Users
               </button>
             )}
@@ -217,9 +271,13 @@ export default function ProfilePage() {
               <h4>Manage Users</h4>
 
               <div className="pagination-controls">
-                <button onClick={handlePrevPage} disabled={currentPage === 1}>Previous</button>
+                <button onClick={handlePrevPage} disabled={currentPage === 1}>
+                  Previous
+                </button>
                 <span>Page {currentPage}</span>
-                <button onClick={handleNextPage} disabled={!hasNextPage}>Next</button>
+                <button onClick={handleNextPage} disabled={!hasNextPage}>
+                  Next
+                </button>
 
                 <label>
                   Users per page:
@@ -251,7 +309,9 @@ export default function ProfilePage() {
                         <td>
                           <select
                             value={u.role}
-                            onChange={(e) => handleUserRoleChange(u.username, e.target.value)}
+                            onChange={(e) =>
+                              handleUserRoleChange(u.username, e.target.value)
+                            }
                           >
                             <option value="user">User</option>
                             <option value="admin">Admin</option>
