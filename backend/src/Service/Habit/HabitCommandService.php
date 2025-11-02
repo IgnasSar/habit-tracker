@@ -12,7 +12,6 @@ use App\Normalizer\HabitNormalizer;
 use App\Repository\HabitRepository;
 use DateTimeImmutable;
 use DateTimeZone;
-use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Bundle\SecurityBundle\Security;

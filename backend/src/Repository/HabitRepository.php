@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use App\Entity\Habit;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
@@ -28,9 +29,11 @@ class HabitRepository extends ServiceEntityRepository
     /**
      * @return Paginator
      */
-    public function findAllPaginated(int $page, int $limit): Paginator
+    public function findAllPaginatedByUser(int $page, int $limit, User $user): Paginator
     {
         $query = $this->createQueryBuilder('h')
+            ->where('h.user = :user')
+            ->setParameter('user', $user)
             ->orderBy('h.name', 'ASC')
             ->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit)
