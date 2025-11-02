@@ -1,0 +1,254 @@
+:root {
+  --bg: #f7f8fa;
+  --card-bg: #ffffff;
+  --accent: #6c63ff;
+  --accent-hover: #574ff7;
+  --text: #202124;
+  --text-light: #5f6368;
+  --error: #d93025;
+  --border: #e0e0e0;
+}
+
+.habit-container {
+  padding: 6rem 2rem 3rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  background: var(--bg);
+  min-height: 100vh;
+}
+
+.habit-header h2 {
+  margin: 0;
+  color: var(--text);
+  font-size: 1.8rem;
+}
+.habit-header p {
+  margin-top: 0.25rem;
+  color: var(--text-light);
+}
+
+.habit-form-modern {
+  background: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem 1.8rem;
+  margin: 1.5rem 0;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+.form-field label {
+  font-weight: 600;
+  color: var(--text-light);
+  margin-bottom: 0.35rem;
+}
+.form-field input,
+.form-field select {
+  background: #f9f9fb;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.7rem 0.9rem;
+  font-size: 0.95rem;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+.form-field input:focus,
+.form-field select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.15);
+  outline: none;
+}
+.form-field input.error {
+  border-color: var(--error);
+}
+.error-text {
+  color: var(--error);
+  font-size: 0.8rem;
+  margin-top: 0.3rem;
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.form-field.small {
+  flex: 1;
+  min-width: 140px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+
+.btn {
+  border: none;
+  border-radius: 10px;
+  padding: 0.6rem 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+.btn:active {
+  transform: scale(0.98);
+}
+.btn.primary {
+  background: var(--accent);
+  color: #fff;
+}
+.btn.primary:hover {
+  background: var(--accent-hover);
+}
+.btn.neutral {
+  background: #ebebf0;
+  color: var(--text);
+}
+.btn.edit {
+  background: var(--accent);
+  color: #fff;
+}
+.btn.edit:hover {
+  background: var(--accent-hover);
+}
+.btn.delete {
+  background: var(--error);
+  color: #fff;
+}
+.btn.delete:hover {
+  background: #b7221a;
+}
+
+.habit-list-wide {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.habit-card-wide {
+  background: var(--card-bg);
+  border-radius: 14px;
+  padding: 1rem 1.3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border);
+}
+.habit-card-wide:hover {
+  border-color: var(--accent);
+  box-shadow: 0 4px 16px rgba(108, 99, 255, 0.12);
+}
+
+.habit-title {
+  margin: 0;
+  color: var(--text);
+  font-size: 1.1rem;
+}
+.habit-details {
+  display: flex;
+  gap: 1.2rem;
+  color: var(--text-light);
+  margin-top: 0.3rem;
+  font-size: 0.9rem;
+}
+.habit-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.no-habits {
+  text-align: center;
+  color: var(--text-light);
+  margin-top: 2rem;
+}
+.loading {
+  text-align: center;
+  color: var(--text-light);
+  margin-top: 2rem;
+}
+
+@media (max-width: 700px) {
+  .habit-card-wide {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.8rem;
+  }
+  .habit-actions {
+    align-self: flex-end;
+  }
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.pagination-btn {
+  background-color: #574ff7;
+  color: white;
+  padding: 0.4rem 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.pagination-btn:disabled {
+  background-color: #a0aec0;
+  cursor: not-allowed;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background-color: rgb(50, 74, 153);
+}
+
+.pagination-info {
+  font-weight: 500;
+  color: #333;
+}
+
+.per-page-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.per-page-selector label {
+  font-size: 0.9rem;
+}
+
+.per-page-selector select {
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: #f8f9fa;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.per-page-selector select:hover {
+  border-color: rgb(50, 74, 153);
+}
+
+@media (max-width: 600px) {
+  .pagination {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .per-page-selector {
+    margin-top: 0.4rem;
+  }
+}
+
