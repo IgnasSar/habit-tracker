@@ -3,7 +3,7 @@ import "../styles/Habit.css";
 
 export default function HabitList({ habits, onEdit, onDelete }) {
   if (!habits?.length) {
-    return <div className="no-habits">No habits yet — add one above.</div>;
+    return <div className="no-habits">You haven't added any habits yet. Start by adding one above!</div>;
   }
 
   return (
