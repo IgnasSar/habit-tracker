@@ -22,10 +22,11 @@ export default function MainPage() {
     setLoading(true);
     try {
       const data = await getAllHabits(p, l);
-      const items = Array.isArray(data) ? data : data.items ?? [];
+      const items = (Array.isArray(data) ? data : data.items ?? []).map(
+        (habit) => ({ ...habit, completed: false })
+      );
 
       setHasNextPage(items.length === l);
-
       setHabits(items);
     } catch {
       setHabits([]);
@@ -42,11 +43,15 @@ export default function MainPage() {
     try {
       if (editingHabit) {
         const updated = await updateHabit(editingHabit.id, form);
-        setHabits((p) => p.map((h) => (h.id === updated.id ? updated : h)));
+        setHabits((p) =>
+          p.map((h) =>
+            h.id === updated.id ? { ...updated, completed: h.completed } : h
+          )
+        );
         setEditingHabit(null);
       } else {
         const created = await createHabit(form);
-        setHabits((p) => [created, ...p]);
+        setHabits((p) => [{ ...created, completed: false }, ...p]);
       }
     } catch {
       alert("Failed to save habit.");
@@ -62,6 +67,14 @@ export default function MainPage() {
       alert("Delete failed.");
     }
   }
+
+  const handleToggleComplete = (habitId) => {
+    setHabits((prevHabits) =>
+      prevHabits.map((habit) =>
+        habit.id === habitId ? { ...habit, completed: !habit.completed } : habit
+      )
+    );
+  };
 
   const handlePrev = () => {
     if (page > 1) setPage((p) => p - 1);
@@ -94,6 +107,7 @@ export default function MainPage() {
               habits={habits}
               onEdit={setEditingHabit}
               onDelete={handleDelete}
+              onToggleComplete={handleToggleComplete}
             />
 
             <div className="pagination">

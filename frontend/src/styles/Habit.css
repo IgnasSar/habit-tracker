@@ -60,9 +60,6 @@
   box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.15);
   outline: none;
 }
-.form-field input.error {
-  border-color: var(--error);
-}
 .error-text {
   color: var(--error);
   font-size: 0.8rem;
@@ -84,6 +81,14 @@
   gap: 0.6rem;
   justify-content: flex-end;
   margin-top: 0.5rem;
+}
+.dynamic-preview-text {
+  background-color: #f3f4f6;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  color: #374151;
+  font-weight: 500;
+  text-align: center;
 }
 
 .btn {
@@ -138,10 +143,27 @@
   align-items: center;
   box-shadow: 0 3px 14px rgba(0, 0, 0, 0.05);
   border: 1px solid var(--border);
+  position: relative;
+  transition: all 0.3s ease;
 }
+
 .habit-card-wide:hover {
   border-color: var(--accent);
   box-shadow: 0 4px 16px rgba(108, 99, 255, 0.12);
+}
+
+.habit-card-wide.completed {
+  border-color: #7edc9a;
+  background-color: #f8fef9;
+}
+.habit-card-wide.completed .habit-title,
+.habit-card-wide.completed .habit-details {
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+
+.habit-info {
+  flex: 1;
 }
 
 .habit-title {
@@ -156,20 +178,53 @@
   margin-top: 0.3rem;
   font-size: 0.9rem;
 }
+
 .habit-actions {
   display: flex;
   gap: 0.5rem;
+  margin-right: 3.5rem; 
 }
 
-.no-habits {
-  text-align: center;
-  color: var(--text-light);
-  margin-top: 2rem;
+.checkmark-container {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  background-color: transparent;
+  border: 2px solid #d1d5db;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  padding: 0;
+  z-index: 2;
 }
-.loading {
-  text-align: center;
-  color: var(--text-light);
-  margin-top: 2rem;
+
+.checkmark-container:hover {
+  border-color: var(--accent);
+  transform: scale(1.05);
+}
+
+.checkmark-icon {
+  width: 18px;
+  height: 18px;
+  fill: #fff;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.checkmark-container.completed {
+  background-color: var(--accent);
+  border-color: var(--accent);
+}
+
+.checkmark-container.completed .checkmark-icon {
+  opacity: 1;
+  transform: scale(1);
 }
 
 @media (max-width: 700px) {
@@ -177,9 +232,12 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 0.8rem;
+    padding-right: 3rem;
   }
   .habit-actions {
-    align-self: flex-end;
+    align-self: flex-start;
+    margin-right: 0;
+    margin-top: 0.5rem;
   }
 }
 
@@ -206,10 +264,6 @@
   cursor: not-allowed;
 }
 
-.pagination-btn:hover:not(:disabled) {
-  background-color: rgb(50, 74, 153);
-}
-
 .pagination-info {
   font-weight: 500;
   color: #333;
@@ -223,40 +277,8 @@
   color: #333;
 }
 
-.per-page-selector label {
-  font-size: 0.9rem;
-}
-
-.per-page-selector select {
-  padding: 0.3rem 0.5rem;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  background-color: #f8f9fa;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.per-page-selector select:hover {
-  border-color: rgb(50, 74, 153);
-}
-
-@media (max-width: 600px) {
-  .pagination {
-    flex-direction: column;
-    gap: 0.8rem;
-  }
-
-  .per-page-selector {
-    margin-top: 0.4rem;
-  }
-}
-
-.dynamic-preview-text {
-  background-color: #f3f4f6;
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  color: #374151;
-  font-weight: 500;
+.loading, .no-habits {
   text-align: center;
+  color: var(--text-light);
+  margin-top: 2rem;
 }
