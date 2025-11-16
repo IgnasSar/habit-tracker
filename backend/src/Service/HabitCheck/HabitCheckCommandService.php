@@ -38,15 +38,6 @@ class HabitCheckCommandService
             throw new NotFoundHttpException('Habit not found.');
         }
 
-        $existingCheck = $this->habitCheckRepository->findOneBy([
-            'habit' => $habit,
-            'entryDate' => $habitCheckCreateRequest->entryDate
-        ]);
-
-        if ($existingCheck !== null) {
-            throw new BadRequestHttpException('A check for this habit on this date already exists.');
-        }
-
         $habitCheck = (new HabitCheck())
             ->setHabit($habit)
             ->setEntryDate($habitCheckCreateRequest->entryDate)
