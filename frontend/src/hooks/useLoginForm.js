@@ -38,29 +38,11 @@ export function useLoginForm() {
       const response = await loginUser(formData);
       localStorage.setItem("token", response.token);
       setSuccess(true);
-      setFormData({ username: "", password: "" });
-      window.location.href = "/main";
+      navigate("/main");
     } catch (err) {
       let parsed;
       try {
         parsed = JSON.parse(err.message);
-
-        if (parsed.message && parsed.message.startsWith("{")) {
-          parsed = JSON.parse(parsed.message);
-        }
-
-        if (parsed.errors) {
-          const errors = {};
-          if (parsed.errors.username)
-            errors.username = parsed.errors.username;
-          if (parsed.errors.email)
-            errors.username = parsed.errors.email;
-          if (parsed.errors.password)
-            errors.password = parsed.errors.password;
-          setFieldErrors(errors);
-          return;
-        }
-
         if (
           parsed.message?.toLowerCase().includes("invalid credentials") ||
           parsed.code === 401
@@ -70,7 +52,6 @@ export function useLoginForm() {
           });
           return;
         }
-
         setServerError(parsed.message || "Login failed.");
       } catch {
         const msg = err.message.toLowerCase();

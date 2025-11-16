@@ -1,7 +1,7 @@
 import HabitCard from "./HabitCard";
 import "../styles/Habit.css";
 
-export default function HabitList({ habits, onEdit, onDelete, onToggleComplete }) {
+export default function HabitList({ habits, onEdit, onDelete, onAddProgress }) {
   if (!habits?.length) {
     return (
       <div className="no-habits">
@@ -18,7 +18,7 @@ export default function HabitList({ habits, onEdit, onDelete, onToggleComplete }
           habit={h}
           onEdit={onEdit}
           onDelete={onDelete}
-          onToggleComplete={onToggleComplete}
+          onAddProgress={onAddProgress}
         />
       ))}
     </div>

@@ -69,6 +69,6 @@ export async function deleteUser(username) {
     headers: getAuthHeaders(),
   });
 
-  if (!res.ok) throw new Error(await res.text());
-  return await res.text();
+  if (res.status !== 204) throw new Error(await res.text());
+  return true;
 }

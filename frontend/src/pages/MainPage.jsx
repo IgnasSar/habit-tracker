@@ -7,52 +7,89 @@ import {
   createHabit,
   updateHabit,
   deleteHabit,
+  getHabitChecks,
+  createHabitCheck,
 } from "../api/habitApi";
 import "../styles/Habit.css";
 
+const toYYYYMMDD = (date) => date.toISOString().split("T")[0];
+
+const getPeriodStart = (habit) => {
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  if (habit.period_type === "daily") {
+    return now;
+  }
+  if (habit.period_type === "weekly") {
+    const day = now.getDay();
+    const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+    return new Date(now.setDate(diff));
+  }
+  if (habit.period_type === "monthly") {
+    return new Date(now.getFullYear(), now.getMonth(), 1);
+  }
+  return now;
+};
+
 export default function MainPage() {
-  const [habits, setHabits] = useState([]);
+  const [habitsWithProgress, setHabitsWithProgress] = useState([]);
   const [editingHabit, setEditingHabit] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [hasNextPage, setHasNextPage] = useState(false);
 
-  async function load(p = page, l = limit) {
+  async function loadData(p = page, l = limit) {
     setLoading(true);
     try {
-      const data = await getAllHabits(p, l);
-      const items = (Array.isArray(data) ? data : data.items ?? []).map(
-        (habit) => ({ ...habit, completed: false })
-      );
+      const habitsData = await getAllHabits(p, l);
+      setHasNextPage(habitsData.length === l);
 
-      setHasNextPage(items.length === l);
-      setHabits(items);
-    } catch {
-      setHabits([]);
+      if (!habitsData.length) {
+        setHabitsWithProgress([]);
+        setLoading(false);
+        return;
+      }
+
+      const progressPromises = habitsData.map(async (habit) => {
+        const periodStart = getPeriodStart(habit);
+        const today = new Date();
+        const checks = await getHabitChecks(
+          habit.id,
+          toYYYYMMDD(periodStart),
+          toYYYYMMDD(today)
+        );
+        return {
+          ...habit,
+          checks,
+          current_progress: checks.length,
+        };
+      });
+
+      const habitsWithData = await Promise.all(progressPromises);
+      setHabitsWithProgress(habitsWithData);
+    } catch (err) {
+      console.error("Failed to load habits:", err);
+      setHabitsWithProgress([]);
     } finally {
       setLoading(false);
     }
   }
 
   useEffect(() => {
-    load(page, limit);
+    loadData(page, limit);
   }, [page, limit]);
 
   async function handleSubmit(form) {
     try {
       if (editingHabit) {
-        const updated = await updateHabit(editingHabit.id, form);
-        setHabits((p) =>
-          p.map((h) =>
-            h.id === updated.id ? { ...updated, completed: h.completed } : h
-          )
-        );
-        setEditingHabit(null);
+        await updateHabit(editingHabit.id, form);
       } else {
-        const created = await createHabit(form);
-        setHabits((p) => [{ ...created, completed: false }, ...p]);
+        await createHabit(form);
       }
+      setEditingHabit(null);
+      loadData(1, limit);
+      setPage(1);
     } catch {
       alert("Failed to save habit.");
     }
@@ -62,27 +99,30 @@ export default function MainPage() {
     if (!window.confirm("Delete this habit?")) return;
     try {
       await deleteHabit(id);
-      setHabits((p) => p.filter((h) => h.id !== id));
+      loadData(page, limit);
     } catch {
       alert("Delete failed.");
     }
   }
 
-  const handleToggleComplete = (habitId) => {
-    setHabits((prevHabits) =>
-      prevHabits.map((habit) =>
-        habit.id === habitId ? { ...habit, completed: !habit.completed } : habit
-      )
-    );
-  };
+  async function handleAddProgress(habit) {
+    const todayStr = toYYYYMMDD(new Date());
+    if (habit.current_progress >= habit.target_count) {
+      alert("You've already reached your goal for this period!");
+      return;
+    }
 
-  const handlePrev = () => {
-    if (page > 1) setPage((p) => p - 1);
-  };
+    try {
+      await createHabitCheck(habit.id, todayStr);
+      loadData(page, limit);
+    } catch (err) {
+      console.error("Failed to add progress:", err);
+      alert("Action failed. Please refresh and try again.");
+    }
+  }
 
-  const handleNext = () => {
-    if (hasNextPage) setPage((p) => p + 1);
-  };
+  const handlePrev = () => page > 1 && setPage((p) => p - 1);
+  const handleNext = () => hasNextPage && setPage((p) => p + 1);
 
   return (
     <div className="main-page">
@@ -92,24 +132,21 @@ export default function MainPage() {
           <h2>Your Habits</h2>
           <p>Build routines by tracking targets over chosen periods.</p>
         </div>
-
         <HabitForm
           onSubmit={handleSubmit}
           editingHabit={editingHabit}
           onCancel={() => setEditingHabit(null)}
         />
-
         {loading ? (
           <p className="loading">Loading…</p>
         ) : (
           <>
             <HabitList
-              habits={habits}
+              habits={habitsWithProgress}
               onEdit={setEditingHabit}
               onDelete={handleDelete}
-              onToggleComplete={handleToggleComplete}
+              onAddProgress={handleAddProgress}
             />
-
             <div className="pagination">
               <button
                 onClick={handlePrev}
@@ -118,9 +155,7 @@ export default function MainPage() {
               >
                 Previous
               </button>
-
               <span className="pagination-info">Page {page}</span>
-
               <button
                 onClick={handleNext}
                 disabled={!hasNextPage}
@@ -128,7 +163,6 @@ export default function MainPage() {
               >
                 Next
               </button>
-
               <div className="per-page-selector">
                 <label htmlFor="limit">Show:</label>
                 <select
