@@ -45,6 +45,10 @@ class HabitCheck
     )]
     private DateTimeImmutable $createdAt;
 
+    #[ORM\ManyToOne(targetEntity: Habit::class, inversedBy: 'habitChecks')]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    private ?Habit $habit = null;
+
     public function __construct() {
         $this->updatedAt = new DateTimeImmutable('now', new DateTimeZone('UTC'));
         $this->createdAt = new DateTimeImmutable('now', new DateTimeZone('UTC'));
@@ -102,5 +106,16 @@ class HabitCheck
     public function getCreatedAt(): DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    public function getHabit(): ?Habit
+    {
+        return $this->habit;
+    }
+
+    public function setHabit(Habit $habit): self
+    {
+        $this->habit = $habit;
+        return $this;
     }
 }

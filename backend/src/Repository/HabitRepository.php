@@ -17,6 +17,17 @@ class HabitRepository extends ServiceEntityRepository
         parent::__construct($registry, Habit::class);
     }
 
+    public function findOneByIdAndUser(int $id, User $user): ?Habit
+    {
+        return $this->createQueryBuilder('h')
+            ->andWhere('h.id = :id')
+            ->andWhere('h.user = :user')
+            ->setParameter('id', $id)
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     public function findOneById(int $id): ?Habit
     {
         return $this->createQueryBuilder('h')
