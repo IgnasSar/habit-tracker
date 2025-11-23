@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use App\Entity\Habit;
 use App\Entity\HabitCheck;
 use DateTimeImmutable;
+use DateTimeZone;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Uid\Uuid;
@@ -52,5 +54,37 @@ class HabitCheckRepository extends ServiceEntityRepository
         }
 
         return $queryBuilder->getQuery()->getResult();
+    }
+
+    public function countChecksForCurrentPeriod(Habit $habit): int
+    {
+        $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
+
+        switch ($habit->getPeriodType()) {
+            case 'daily':
+                $start = $now->setTime(0, 0);
+                break;
+
+            case 'weekly':
+                $start = $now->modify('monday this week')->setTime(0, 0);
+                break;
+
+            case 'monthly':
+                $start = $now->modify('first day of this month')->setTime(0, 0);
+                break;
+
+            default:
+                $days = $habit->getPeriodLength() ?? 1;
+                $start = $now->modify("-{$days} days")->setTime(0, 0);
+        }
+
+        return (int) $this->createQueryBuilder('hc')
+            ->select('COUNT(hc.id)')
+            ->andWhere('hc.habit = :habit')
+            ->andWhere('hc.entryDate >= :start')
+            ->setParameter('habit', $habit)
+            ->setParameter('start', $start->format('Y-m-d'))
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 }

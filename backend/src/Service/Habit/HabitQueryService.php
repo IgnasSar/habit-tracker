@@ -7,6 +7,7 @@ namespace App\Service\Habit;
 use App\Entity\User;
 use App\Normalizer\HabitNormalizer;
 use App\Repository\HabitRepository;
+use App\Repository\HabitCheckRepository;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -15,6 +16,7 @@ class HabitQueryService {
     public function __construct(
         private readonly HabitNormalizer $habitNormalizer,
         private readonly HabitRepository $habitRepository,
+        private readonly HabitCheckRepository $habitCheckRepository,
         private readonly Security $security
     ) {}
 
@@ -22,11 +24,16 @@ class HabitQueryService {
     {
         $habit = $this->habitRepository->findOneById($id);
 
-        if(null === $habit) {
+        if (null === $habit) {
             throw new NotFoundHttpException('Habit not found.');
         }
 
-        return $this->habitNormalizer->normalize($habit);
+        $normalized = $this->habitNormalizer->normalize($habit);
+
+        $normalized['current_progress'] = $this->habitCheckRepository
+            ->countChecksForCurrentPeriod($habit);
+
+        return $normalized;
     }
 
     public function getAll(int $page, int $limit): array
@@ -42,7 +49,12 @@ class HabitQueryService {
         $normalized = [];
 
         foreach ($paginator as $habit) {
-            $normalized[] = $this->habitNormalizer->normalize($habit);
+            $data = $this->habitNormalizer->normalize($habit);
+
+            $data['current_progress'] = $this->habitCheckRepository
+                ->countChecksForCurrentPeriod($habit);
+
+            $normalized[] = $data;
         }
 
         return $normalized;
