@@ -21,7 +21,8 @@ const getPeriodForDate = (habit, date) => {
   if (habit.period_type === "weekly") {
     const day = d.getUTCDay();
     const diff = d.getUTCDate() - day + (day === 0 ? -6 : 1);
-    const start = new Date(d.setUTCDate(diff));
+    const start = new Date(d);
+    start.setUTCDate(diff);
     const end = new Date(start);
     end.setUTCDate(start.getUTCDate() + 6);
     return { start: toYYYYMMDD(start), end: toYYYYMMDD(end) };
@@ -51,12 +52,22 @@ export default function CalendarPage() {
         const userHabits = await getAllHabits(1, 100);
         setHabits(userHabits);
 
-        const firstDay = toYYYYMMDD(new Date(year, month, 1));
-        const lastDay = toYYYYMMDD(new Date(year, month + 1, 0));
+        const startOfMonth = new Date(year, month, 1);
+        const endOfMonth = new Date(year, month + 1, 0);
+        
+        const bufferStart = new Date(startOfMonth);
+        bufferStart.setDate(bufferStart.getDate() - 7);
+
+        const bufferEnd = new Date(endOfMonth);
+        bufferEnd.setDate(bufferEnd.getDate() + 7);
+
+        const fetchStart = toYYYYMMDD(bufferStart);
+        const fetchEnd = toYYYYMMDD(bufferEnd);
 
         const checkPromises = userHabits.map((h) =>
-          getHabitChecks(h.id, firstDay, lastDay)
+          getHabitChecks(h.id, fetchStart, fetchEnd)
         );
+        
         const checksByHabit = await Promise.all(checkPromises);
         setAllChecks(checksByHabit.flat());
       } catch (e) {
@@ -90,6 +101,7 @@ export default function CalendarPage() {
     
     const tempId = Date.now();
     const tempCheck = { id: tempId, habit_id: habit.id, entry_date: date };
+    
     setAllChecks((prev) => [...prev, tempCheck]);
 
     try {
@@ -122,13 +134,13 @@ export default function CalendarPage() {
             {habits.map((habit) => {
               const period = getPeriodForDate(habit, dateStr);
               const checksForHabit = checksByHabitId[habit.id] || [];
+              
               const checksInPeriod = checksForHabit.filter(
                 (c) => c.entry_date >= period.start && c.entry_date <= period.end
               );
               
               const currentProgress = checksInPeriod.length;
               const isPeriodGoalMet = currentProgress >= habit.target_count;
-              
               const checksTodayCount = checksForHabit.filter(c => c.entry_date === dateStr).length;
 
               return (
@@ -158,15 +170,25 @@ export default function CalendarPage() {
       <Header />
       <div className="calendar-container">
         <div className="calendar-header">
-          <button onClick={() => setCurrentDate(new Date(year, month - 1, 1))} className="nav-btn">&lt;</button>
+          <button onClick={() => setCurrentDate(new Date(year, month - 1, 1))} className="nav-btn">
+            &lt;
+          </button>
           <h2>{monthNames[month]} {year}</h2>
-          <button onClick={() => setCurrentDate(new Date(year, month + 1, 1))} className="nav-btn">&gt;</button>
+          <button onClick={() => setCurrentDate(new Date(year, month + 1, 1))} className="nav-btn">
+            &gt;
+          </button>
         </div>
         <div className="calendar-grid-header">
-          {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => (<div key={day} className="weekday-name">{day}</div>))}
+          {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => (
+            <div key={day} className="weekday-name">{day}</div>
+          ))}
         </div>
         <div className="calendar-grid">
-          {loading ? (<div className="cal-loading">Loading Schedule...</div>) : renderCalendarGrid()}
+          {loading ? (
+            <div className="cal-loading">Loading Schedule...</div>
+          ) : (
+            renderCalendarGrid()
+          )}
         </div>
       </div>
     </div>

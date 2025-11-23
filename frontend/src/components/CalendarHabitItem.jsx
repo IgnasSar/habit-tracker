@@ -14,6 +14,7 @@ export default function CalendarHabitItem({
 
   const handleCheck = async (e) => {
     e.stopPropagation();
+    
     if (isLocked || isPeriodGoalMet || isChecking) {
       if (isPeriodGoalMet) {
         alert("You've already met your goal for this period!");
@@ -40,11 +41,13 @@ export default function CalendarHabitItem({
     itemClassName += ' completed-today';
   }
 
-  const isButtonCompleted = checksTodayCount > 0;
+  const isButtonCompleted = isPeriodGoalMet;
 
   return (
     <div className={itemClassName}>
-      <span className="habit-name">{habit.name}</span>
+      <span className="habit-name" title={habit.name}>
+        {habit.name}
+      </span>
       <div className="habit-meta">
         <span className="progress-text">
           {currentProgress}/{habit.target_count}
@@ -53,6 +56,7 @@ export default function CalendarHabitItem({
           className={`check-btn ${isButtonCompleted ? 'completed' : ''} ${isChecking ? 'loading' : ''}`}
           onClick={handleCheck}
           disabled={isLocked || isPeriodGoalMet || isChecking}
+          title={isPeriodGoalMet ? "Goal met!" : "Check in"}
         >
           {isChecking ? (
             <div className="spinner-small"></div>
