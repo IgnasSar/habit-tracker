@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Enum\NotificationType;
 use App\Repository\NotificationRepository;
 use DateTimeImmutable;
 use DateTimeZone;
@@ -26,9 +27,10 @@ class Notification
 
     #[ORM\Column(
         type: 'string',
-        length: 255
+        length: 25,
+        nullable: false
     )]
-    private ?string $type = null;
+    private string $type = NotificationType::System->value;
 
     #[ORM\Column(
         name: 'is_read',
@@ -71,14 +73,14 @@ class Notification
         return $this;
     }
 
-    public function getType(): ?string
+    public function getType(): NotificationType
     {
-        return $this->type;
+        return NotificationType::from($this->type);
     }
 
-    public function setType(string $type): self
+    public function setType(NotificationType $type): self
     {
-        $this->type = $type;
+        $this->type = $type->value;
         return $this;
     }
 
