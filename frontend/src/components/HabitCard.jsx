@@ -17,7 +17,8 @@ export default function HabitCard({ habit, onEdit, onDelete, onAddProgress }) {
 
   const handleCheckClick = async (e) => {
     e.stopPropagation();
-    if (isPeriodGoalMet || isChecking) return;
+    if (isPeriodGoalMet || isChecking)
+      return;
 
     setIsChecking(true);
     try {

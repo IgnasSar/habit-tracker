@@ -6,33 +6,31 @@ import {
   getHabitChecks,
   createHabitCheck,
 } from "../api/habitApi";
+import { toLocalYYYYMMDD } from "../utils/dateUtil";
 import "../styles/Calendar.css";
 
-const toYYYYMMDD = (date) => date.toISOString().split("T")[0];
-
-const getPeriodForDate = (habit, date) => {
-  const d = new Date(date);
-  d.setUTCHours(0, 0, 0, 0);
+const getPeriodForDate = (habit, dateStr) => {
+  const parts = dateStr.split("-");
+  const d = new Date(parts[0], parts[1] - 1, parts[2]);
 
   if (habit.period_type === "daily") {
-    const start = new Date(d);
-    return { start: toYYYYMMDD(start), end: toYYYYMMDD(start) };
+    return { start: dateStr, end: dateStr };
   }
   if (habit.period_type === "weekly") {
-    const day = d.getUTCDay();
-    const diff = d.getUTCDate() - day + (day === 0 ? -6 : 1);
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
     const start = new Date(d);
-    start.setUTCDate(diff);
+    start.setDate(diff);
     const end = new Date(start);
-    end.setUTCDate(start.getUTCDate() + 6);
-    return { start: toYYYYMMDD(start), end: toYYYYMMDD(end) };
+    end.setDate(start.getDate() + 6);
+    return { start: toLocalYYYYMMDD(start), end: toLocalYYYYMMDD(end) };
   }
   if (habit.period_type === "monthly") {
-    const start = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1));
-    const end = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0));
-    return { start: toYYYYMMDD(start), end: toYYYYMMDD(end) };
+    const start = new Date(d.getFullYear(), d.getMonth(), 1);
+    const end = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+    return { start: toLocalYYYYMMDD(start), end: toLocalYYYYMMDD(end) };
   }
-  return { start: toYYYYMMDD(d), end: toYYYYMMDD(d) };
+  return { start: dateStr, end: dateStr };
 };
 
 export default function CalendarPage() {
@@ -43,7 +41,7 @@ export default function CalendarPage() {
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
-  const todayStr = toYYYYMMDD(new Date());
+  const todayStr = toLocalYYYYMMDD(new Date());
 
   useEffect(() => {
     async function fetchData() {
@@ -56,13 +54,13 @@ export default function CalendarPage() {
         const endOfMonth = new Date(year, month + 1, 0);
         
         const bufferStart = new Date(startOfMonth);
-        bufferStart.setDate(bufferStart.getDate() - 7);
+        bufferStart.setDate(bufferStart.getDate() - 14);
 
         const bufferEnd = new Date(endOfMonth);
-        bufferEnd.setDate(bufferEnd.getDate() + 7);
+        bufferEnd.setDate(bufferEnd.getDate() + 14);
 
-        const fetchStart = toYYYYMMDD(bufferStart);
-        const fetchEnd = toYYYYMMDD(bufferEnd);
+        const fetchStart = toLocalYYYYMMDD(bufferStart);
+        const fetchEnd = toLocalYYYYMMDD(bufferEnd);
 
         const checkPromises = userHabits.map((h) =>
           getHabitChecks(h.id, fetchStart, fetchEnd)
@@ -87,8 +85,8 @@ export default function CalendarPage() {
     }, {});
   }, [allChecks]);
 
-  const handleAddProgressForDate = async (habit, date) => {
-    const period = getPeriodForDate(habit, date);
+  const handleAddProgressForDate = async (habit, dateStr) => {
+    const period = getPeriodForDate(habit, dateStr);
     const checksForHabit = checksByHabitId[habit.id] || [];
     const checksInPeriod = checksForHabit.filter(
       (c) => c.entry_date >= period.start && c.entry_date <= period.end
@@ -100,13 +98,14 @@ export default function CalendarPage() {
     }
     
     const tempId = Date.now();
-    const tempCheck = { id: tempId, habit_id: habit.id, entry_date: date };
+    const tempCheck = { id: tempId, habit_id: habit.id, entry_date: dateStr };
     
     setAllChecks((prev) => [...prev, tempCheck]);
 
     try {
-      const newCheck = await createHabitCheck(habit.id, date);
-      setAllChecks((prev) => prev.map((c) => (c.id === tempId ? newCheck : c)));
+      const newCheck = await createHabitCheck(habit.id, dateStr);
+      const normalizedCheck = { ...newCheck, entry_date: dateStr };
+      setAllChecks((prev) => prev.map((c) => (c.id === tempId ? normalizedCheck : c)));
     } catch (err) {
       alert("Failed to save progress. Reverting.");
       setAllChecks((prev) => prev.filter((c) => c.id !== tempId));
@@ -124,11 +123,13 @@ export default function CalendarPage() {
     }
 
     for (let d = 1; d <= daysInMonth; d++) {
-      const dateStr = toYYYYMMDD(new Date(year, month, d));
-      const isLocked = dateStr > todayStr;
+      const dateObj = new Date(year, month, d);
+      const dateStr = toLocalYYYYMMDD(dateObj);
+      const isFuture = dateStr > todayStr;
+      const isToday = dateStr === todayStr;
 
       days.push(
-        <div key={d} className="calendar-day">
+        <div key={d} className={`calendar-day ${isToday ? "today" : ""}`}>
           <div className="day-number">{d}</div>
           <div className="day-events">
             {habits.map((habit) => {
@@ -141,7 +142,8 @@ export default function CalendarPage() {
               
               const currentProgress = checksInPeriod.length;
               const isPeriodGoalMet = currentProgress >= habit.target_count;
-              const checksTodayCount = checksForHabit.filter(c => c.entry_date === dateStr).length;
+              const checksToday = checksForHabit.filter(c => c.entry_date === dateStr);
+              const isDoneToday = checksToday.length > 0;
 
               return (
                 <CalendarHabitItem
@@ -149,10 +151,10 @@ export default function CalendarPage() {
                   habit={habit}
                   date={dateStr}
                   onAddProgress={handleAddProgressForDate}
-                  isLocked={isLocked}
+                  isFuture={isFuture}
                   isPeriodGoalMet={isPeriodGoalMet}
                   currentProgress={currentProgress}
-                  checksTodayCount={checksTodayCount}
+                  isDoneToday={isDoneToday}
                 />
               );
             })}
@@ -163,7 +165,10 @@ export default function CalendarPage() {
     return days;
   };
 
-  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June", 
+    "July", "August", "September", "October", "November", "December"
+  ];
 
   return (
     <div className="calendar-page">
