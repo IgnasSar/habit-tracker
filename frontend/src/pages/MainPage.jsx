@@ -10,9 +10,8 @@ import {
   getHabitChecks,
   createHabitCheck,
 } from "../api/habitApi";
+import { toLocalYYYYMMDD } from "../utils/dateUtil";
 import "../styles/Habit.css";
-
-const toYYYYMMDD = (date) => date.toISOString().split("T")[0];
 
 const getPeriodStart = (habit) => {
   const now = new Date();
@@ -23,7 +22,9 @@ const getPeriodStart = (habit) => {
   if (habit.period_type === "weekly") {
     const day = now.getDay();
     const diff = now.getDate() - day + (day === 0 ? -6 : 1);
-    return new Date(now.setDate(diff));
+    const start = new Date(now);
+    start.setDate(diff);
+    return start;
   }
   if (habit.period_type === "monthly") {
     return new Date(now.getFullYear(), now.getMonth(), 1);
@@ -54,11 +55,10 @@ export default function MainPage() {
       const progressPromises = habitsData.map(async (habit) => {
         const periodStart = getPeriodStart(habit);
         const today = new Date();
-        const checks = await getHabitChecks(
-          habit.id,
-          toYYYYMMDD(periodStart),
-          toYYYYMMDD(today)
-        );
+        const startStr = toLocalYYYYMMDD(periodStart);
+        const endStr = toLocalYYYYMMDD(today);
+        
+        const checks = await getHabitChecks(habit.id, startStr, endStr);
         return {
           ...habit,
           checks,
@@ -68,6 +68,14 @@ export default function MainPage() {
 
       const habitsWithData = await Promise.all(progressPromises);
       setHabitsWithProgress(habitsWithData);
+
+      if (editingHabit) {
+        const updatedEditing = habitsWithData.find(h => h.id === editingHabit.id);
+        if (updatedEditing) {
+          setEditingHabit(updatedEditing);
+        }
+      }
+
     } catch (err) {
       console.error("Failed to load habits:", err);
       setHabitsWithProgress([]);
@@ -106,10 +114,17 @@ export default function MainPage() {
   }
 
   async function handleAddProgress(habit) {
-    const todayStr = toYYYYMMDD(new Date());
+    const todayStr = toLocalYYYYMMDD(new Date());
+    
     if (habit.current_progress >= habit.target_count) {
       alert("You've already reached your goal for this period!");
       return;
+    }
+
+    const hasDoneToday = habit.checks.some(c => c.entry_date === todayStr);
+    if (hasDoneToday) {
+       alert("You have already checked in today!");
+       return;
     }
 
     try {
@@ -136,6 +151,7 @@ export default function MainPage() {
           onSubmit={handleSubmit}
           editingHabit={editingHabit}
           onCancel={() => setEditingHabit(null)}
+          onRefresh={() => loadData(page, limit)}
         />
         {loading ? (
           <p className="loading">Loading…</p>
