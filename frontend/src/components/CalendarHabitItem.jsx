@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/Calendar.css";
 
 export default function CalendarHabitItem({
@@ -11,10 +12,15 @@ export default function CalendarHabitItem({
   isDoneToday,
 }) {
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const isDisabled = isFuture || isPeriodGoalMet;
 
-  const handleClick = async (e) => {
+  const handleCardClick = () => {
+    navigate(`/habit/${habit.id}/stats`);
+  };
+
+  const handleCheckClick = async (e) => {
     e.stopPropagation();
     if (isDisabled || loading) return;
 
@@ -36,6 +42,8 @@ export default function CalendarHabitItem({
         ${isFuture ? "locked" : ""}
       `}
       title={`${habit.name}: ${currentProgress}/${habit.target_count}`}
+      onClick={handleCardClick}
+      style={{ cursor: "pointer" }}
     >
       <div className="habit-name">{habit.name}</div>
       <div className="habit-meta">
@@ -44,7 +52,7 @@ export default function CalendarHabitItem({
         </span>
         <button
           className={`check-btn ${isPeriodGoalMet ? "completed" : ""} ${isDoneToday ? "completed" : ""}`}
-          onClick={handleClick}
+          onClick={handleCheckClick}
           disabled={isDisabled}
         >
           {loading ? (

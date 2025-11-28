@@ -16,6 +16,15 @@ export async function getAllHabits(page = 1, limit = 10) {
   return await res.json();
 }
 
+export async function getHabitById(id) {
+  const res = await fetch(`${API_BASE}/habits/${id}`, {
+    method: "GET",
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return await res.json();
+}
+
 export async function createHabit(data) {
   const res = await fetch(`${API_BASE}/habits`, {
     method: "POST",
