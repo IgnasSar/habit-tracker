@@ -37,4 +37,14 @@ class NotificationQueryService {
 
         return $normalized;
     }
+
+    public function getUnread(string $userId): array
+    {
+        $notifications = $this->notificationRepository->findUnreadForUser($userId, 2);
+
+        return array_map(
+            fn($n) => $this->notificationNormalizer->normalize($n),
+            $notifications
+        );
+    }
 }

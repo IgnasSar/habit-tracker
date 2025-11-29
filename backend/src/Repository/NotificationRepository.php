@@ -6,8 +6,8 @@ namespace App\Repository;
 
 use App\Entity\Notification;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 
 class NotificationRepository extends ServiceEntityRepository
 {
@@ -30,5 +30,22 @@ class NotificationRepository extends ServiceEntityRepository
             ->getQuery();
 
         return new Paginator($query);
+    }
+
+    /**
+     * @return Notification[]
+     */
+    public function findUnreadForUser(string $userId, int $limit = 2): array
+    {
+        return $this->createQueryBuilder('n')
+            ->join('n.user', 'u')
+            ->andWhere('u.id = :userId')
+            ->andWhere('n.isRead = :isRead')
+            ->setParameter('userId', $userId)
+            ->setParameter('isRead', false)
+            ->orderBy('n.createdAt', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
     }
 }

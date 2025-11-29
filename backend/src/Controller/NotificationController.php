@@ -8,6 +8,7 @@ use App\Dto\Notification\NotificationCreateRequest;
 use App\Dto\Notification\NotificationUpdateRequest;
 use App\Service\Notification\NotificationCommandService;
 use App\Service\Notification\NotificationQueryService;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
@@ -15,7 +16,7 @@ use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route('/notifications')]
-class NotificationController {
+class NotificationController extends AbstractController {
 
     public function __construct(
         private readonly NotificationCommandService $notificationCommandService,
@@ -29,6 +30,20 @@ class NotificationController {
         return new JsonResponse(
             $this->notificationCommandService->create($createRequest),
             Response::HTTP_CREATED
+        );
+    }
+
+    #[Route('/unread', name: 'get_unread_notifications', methods: ['GET'])]
+    public function getUnread(): JsonResponse {
+        $user = $this->getUser();
+
+        if (!$user) {
+            return new JsonResponse(['error' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        return new JsonResponse(
+            $this->notificationQueryService->getUnread($user->getId()->toRfc4122()),
+            Response::HTTP_OK
         );
     }
 
