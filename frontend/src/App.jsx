@@ -5,10 +5,12 @@ import ProfilePage from "./pages/ProfilePage";
 import CalendarPage from "./pages/CalendarPage";
 import HabitStatsPage from "./pages/HabitStatsPage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import NotificationManager from "./components/NotificationManager";
 
 export default function App() {
   return (
     <Router>
+      <NotificationManager />
       <Routes>
         <Route path="/" element={<RegisterPage />} />
         <Route path="/main" element={<ProtectedRoute><MainPage /></ProtectedRoute>} />

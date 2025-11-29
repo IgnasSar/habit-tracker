@@ -1,0 +1,105 @@
+.toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  pointer-events: none;
+}
+
+.toast-message {
+  background-color: var(--card-bg, #ffffff); 
+  color: var(--text, #202124);
+  
+  padding: 16px 20px;
+  min-width: 320px;
+  max-width: 450px;
+  
+  border-radius: 14px;
+  border: 1px solid var(--border, #e0e0e0);
+  border-left: 6px solid var(--accent, #6c63ff);
+  
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+  
+  font-family: "Inter", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 15px;
+  
+  pointer-events: auto;
+  animation: slideInRight 0.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.toast-message:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(108, 99, 255, 0.15);
+}
+
+
+.toast-message.error {
+  border-left-color: var(--error, #d93025);
+}
+
+.toast-message.success {
+  border-left-color: #7edc9a;
+}
+
+.toast-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1; 
+}
+
+.toast-title {
+  font-size: 0.75rem;
+  color: var(--text-light, #5f6368); 
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.toast-body {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text, #202124);
+  line-height: 1.4;
+}
+
+.toast-close {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  color: var(--border, #e0e0e0); 
+  font-size: 20px;
+  transition: color 0.2s ease, transform 0.2s ease;
+  margin-top: 2px;
+}
+
+.toast-close:hover {
+  color: var(--accent, #6c63ff);
+  transform: scale(1.1);
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(100%); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeOut {
+  to { opacity: 0; transform: translateX(20px); }
+}
