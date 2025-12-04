@@ -1,4 +1,4 @@
-FROM php:8.4.13-fpm
+FROM php:8.4-fpm
 
 RUN apt-get update && apt-get install -y \
     git \
@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y \
     make \
     autoconf \
     libpq-dev \
+    supervisor \
     && rm -rf /var/lib/apt/lists/*
 
 RUN docker-php-ext-install pdo_pgsql pgsql
@@ -24,4 +25,7 @@ RUN composer install --no-scripts --no-interaction --prefer-dist
 
 COPY backend ./
 
-CMD ["php-fpm"]
+RUN mkdir -p /var/log/supervisor
+COPY backend/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

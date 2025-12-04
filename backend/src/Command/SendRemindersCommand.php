@@ -31,7 +31,7 @@ class SendRemindersCommand extends Command
             return Command::SUCCESS;
         }
 
-        $habitIds = array_map(fn($h) => $h['habit_id'], $pendingHabits);
+        $habitIds = array_map(fn($habit) => $habit['habit_id'], $pendingHabits);
 
         $this->userRepository->findLastCompletions($habitIds);
 
