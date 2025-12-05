@@ -15,6 +15,10 @@ services:
     volumes:
       - ./backend/:/var/www/html
       - ./backend/vendor:/var/www/html/vendor
+    environment:
+      DATABASE_URL: postgresql://root:root@db:5432/habit_tracker?serverVersion=16&charset=utf8
+      MAILER_DSN: smtp://mailpit:1025
+      MESSENGER_TRANSPORT_DSN: doctrine://default
     depends_on:
       - db
       - mailpit

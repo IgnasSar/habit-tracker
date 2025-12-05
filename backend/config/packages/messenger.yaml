@@ -6,19 +6,14 @@ framework:
                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
                 options:
                     queue_name: async
-                    use_notify: true
-                    check_delayed_interval: 60000
                 retry_strategy:
                     max_retries: 3
                     multiplier: 2
-            scheduler_default:
-                dsn: 'doctrine://default'
-                options:
-                    queue_name: scheduler_default
-                    auto_setup: false
+
             failed: 'doctrine://default?queue_name=failed'
             sync: 'sync://'
 
         routing:
+            'Symfony\Component\Console\Messenger\RunCommandMessage': async
+
             'App\Message\SendHabitReminder': async
-            'Symfony\Component\Console\Messenger\RunCommandMessage': scheduler_default
