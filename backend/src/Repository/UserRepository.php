@@ -11,6 +11,7 @@ use App\Enum\PeriodType;
 use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Query\Expr\Join;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
 class UserRepository extends ServiceEntityRepository
@@ -91,5 +92,16 @@ class UserRepository extends ServiceEntityRepository
             ->setParameter('type', $type->value)
             ->getQuery()
             ->getScalarResult();
+    }
+
+    public function findAllPaginated(int $page, int $limit): Paginator
+    {
+        $query = $this->createQueryBuilder('u')
+            ->orderBy('u.username', 'ASC')
+            ->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit)
+            ->getQuery();
+
+        return new Paginator($query);
     }
 }

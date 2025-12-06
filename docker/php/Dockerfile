@@ -21,7 +21,7 @@ WORKDIR /var/www/html
 
 COPY backend/composer.json backend/composer.lock ./
 
-RUN composer install --no-scripts --no-interaction --prefer-dist
+RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction --prefer-dist
 
 COPY backend ./
 

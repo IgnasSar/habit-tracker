@@ -17,7 +17,7 @@ class HabitSchedule implements ScheduleProviderInterface
     {
         return (new Schedule())->add(
             RecurringMessage::every(
-                '1 minute',
+                '10 hours',
                 new RunCommandMessage('ht:send-reminders')
             )
         );
